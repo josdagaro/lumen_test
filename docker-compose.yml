@@ -1,7 +1,6 @@
 version: "3.1"
 
 services:
-
   proxy:
     image: traefik:latest
     container_name: proxy
@@ -19,7 +18,6 @@ services:
       - "traefik.frontend.rule=Host:proxy.local"
       - "traefik.docker.network=default"
       - "traefik.port=8080"
-
   api:
     image: php:7.2-apache
     container_name: api
@@ -32,8 +30,6 @@ services:
       - "traefik.frontend.rule=Host:api.local"
       - "traefik.docker.network=default"
       - "traefik.port=80"
-
 networks:
-  
   default:
     driver: bridge
