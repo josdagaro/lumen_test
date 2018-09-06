@@ -22,7 +22,8 @@ services:
     image: php:7.2-apache
     container_name: api
     volumes:
-      - ./:/var/www/html/project
+      - ./:/var/www/html/
+      - ./config/server/default.conf:/etc/apache2/sites-enabled/000-default.conf
     networks:
       - default
     labels:
