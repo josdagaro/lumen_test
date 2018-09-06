@@ -1,0 +1,39 @@
+version: "3.1"
+
+services:
+
+  proxy:
+    image: traefik:latest
+    container_name: proxy
+    command: --api --docker
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .traefik.toml:/traefik.toml
+    networks:
+      - default
+    labels:
+      - "traefik.backend=proxy"
+      - "traefik.frontend.rule=Host:proxy.local"
+      - "traefik.docker.network=default"
+      - "traefik.port=8080"
+
+  api:
+    image: php:7.2-apache
+    container_name: api
+    volumes:
+      - ./:/var/www/html/project
+    networks:
+      - default
+    labels:
+      - "traefik.backend=api"
+      - "traefik.frontend.rule=Host:api.local"
+      - "traefik.docker.network=default"
+      - "traefik.port=80"
+
+networks:
+  
+  default:
+    driver: bridge
