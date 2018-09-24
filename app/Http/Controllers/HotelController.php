@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Hotel;
 
 class HotelController extends Controller
@@ -22,8 +23,10 @@ class HotelController extends Controller
      * 
      * @return array
      */
-    public function showAll()
+    public function showAll(Request $request)
     {
-        return Hotel::paginate(self::LIMIT_OF_ITEMS_PER_PAGE);
+        $property = $request->input('prop');
+        $order = $request->input('order');
+        return Hotel::orderBy($property, $order)->paginate(self::LIMIT_OF_ITEMS_PER_PAGE);
     }
 }
