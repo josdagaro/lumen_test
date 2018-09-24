@@ -19,11 +19,14 @@ services:
       - "traefik.docker.network=default"
       - "traefik.port=8080"
   api:
+    build:
+      context: .
+      dockerfile: ./docker/api/Dockerfile
     image: php:7.2-apache
     container_name: api
     volumes:
       - ./:/var/www/html/
-      - ./config/server/default.conf:/etc/apache2/sites-enabled/000-default.conf
+      - ./docker/api/default.conf:/etc/apache2/sites-enabled/000-default.conf
     networks:
       - default
     labels:
@@ -31,6 +34,22 @@ services:
       - "traefik.frontend.rule=Host:api.local"
       - "traefik.docker.network=default"
       - "traefik.port=80"
+  database:
+    image: postgres:10
+    container_name: database
+    environment: 
+      POSTGRES_USER: web
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: hotels
+    ports:
+      - 5432:5432
+    networks:
+      - default
+    labels:
+      - "traefik.backend=database"
+      - "traefik.frontend.rule=Host:database.local"
+      - "traefik.docker.network=default"
+      - "traefik.port=5432"
 networks:
   default:
     driver: bridge
