@@ -1,0 +1,8 @@
+default:
+  suites:
+    api:
+      paths: [ features ]
+      contexts: [ Tests\Features\HotelFeatureContext ]
+  extensions:
+    Behat\MinkExtension:
+      goutte: ~
