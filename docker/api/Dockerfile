@@ -7,4 +7,5 @@ RUN apt update -y \
     mbstring \
     pdo_pgsql \
     pdo \
-    pgsql
+    pgsql \
+    && a2enmod rewrite

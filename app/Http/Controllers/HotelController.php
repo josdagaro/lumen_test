@@ -9,7 +9,7 @@ class HotelController extends Controller
 {
     const LIMIT_OF_ITEMS_PER_PAGE = 10;
 
-    const DEFAULT_ID_TO_ORDER_BY = 'id';
+    const DEFAULT_INDEX_TO_ORDER_BY = 'id';
 
     const DEFAULT_ORDER_TO_SORT = 'asc';
 
@@ -24,13 +24,49 @@ class HotelController extends Controller
 
     /**
      * Show a paginated array of hotels.
+     * @param Request $request
      * 
      * @return array
      */
-    public function showAll(Request $request)
+    public function show(Request $request, $id = null)
     {
-        $property = $request->input('prop') ?: self::DEFAULT_ID_TO_ORDER_BY;
-        $order = $request->input('order') ?: self::DEFAULT_ORDER_TO_SORT;
-        return Hotel::orderBy($property, $order)->paginate(self::LIMIT_OF_ITEMS_PER_PAGE);
+        $response = null;
+
+        if ($id) {
+            $response = Hotel::find($id);
+        } else {
+            $property = $request->input('prop') ? : self::DEFAULT_INDEX_TO_ORDER_BY;
+            $order = $request->input('order') ? : self::DEFAULT_ORDER_TO_SORT;
+            $response = Hotel::orderBy($property, $order)->paginate(self::LIMIT_OF_ITEMS_PER_PAGE);
+        }
+
+        return $response;
+    }
+
+    /**
+     * Store a hotel.
+     * @param Request $request
+     *
+     * @return void
+     */
+    public function store(Request $request)
+    {
+        $this->validate($request, [
+            'name' => 'required',
+            'location' => 'required',
+        ]);
+
+        return Hotel::create($request->all());
+    }
+
+    /**
+     * Delete a hotel.
+     * @param int $id
+     * 
+     * @return void
+     */
+    public function destroy(int $id)
+    {
+        Hotel::find($id)->delete();
     }
 }
