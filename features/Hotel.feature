@@ -1,6 +1,6 @@
 Feature: Hotel collection
 
-    As a API client
+    As an API client
     In order to get a hotel collection
     I need to request an API service
 
