@@ -71,4 +71,20 @@ class HotelFeatureContext extends MinkContext implements Context, SnippetAccepti
            throw new \Exception("Response was not JSON\n" . $page->getContent());
         }
     }
+
+    /**
+     * @Given I request the API route :arg1 using the HTTP method POST
+     */
+    public function iRequestTheApiRouteUsingTheHttpMethodPost($arg1)
+    {
+        throw new PendingException();
+    }
+
+    /**
+     * @Then I should get the new hotel's ID
+     */
+    public function iShouldGetTheNewHotelsId()
+    {
+        throw new PendingException();
+    }
 }
