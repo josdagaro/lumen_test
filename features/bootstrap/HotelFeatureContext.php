@@ -7,7 +7,9 @@ use Behat\Behat\Tester\Exception\PendingException,
     Behat\Behat\Context\SnippetAcceptingContext,
     Behat\MinkExtension\Context\MinkContext,
     Behat\Mink\Driver\GoutteDriver,
-    Behat\Mink\Session;
+    Behat\Mink\Session,
+    App\Http\Controllers\HotelController,
+    PHPUnit\Framework\Assert;
 
 /**
  * Defines application features from the specific context.
@@ -15,6 +17,7 @@ use Behat\Behat\Tester\Exception\PendingException,
 class HotelFeatureContext extends MinkContext implements Context, SnippetAcceptingContext
 {
     private static $baseUrl = 'http://localhost';
+
     private $session;
 
     /**
@@ -27,6 +30,7 @@ class HotelFeatureContext extends MinkContext implements Context, SnippetAccepti
     public function __construct()
     {
         $this->session = new Session(new GoutteDriver());
+        $this->session->start();
     }
 
     /**
@@ -34,7 +38,7 @@ class HotelFeatureContext extends MinkContext implements Context, SnippetAccepti
      */
     public function iRequestTheApiRoute($path)
     {
-        // $this->visitPath(self::$baseUrl . $path);
+        $this->session->visit(self::$baseUrl . $path);
     }
 
     /**
@@ -42,6 +46,29 @@ class HotelFeatureContext extends MinkContext implements Context, SnippetAccepti
      */
     public function iShouldGetTheFirstHotels($amount)
     {
-        throw new PendingException();
+        $amount = (int)$amount;
+        $page = $this->session->getPage();
+        $content = json_decode($page->getContent());
+        
+        if (!empty($content)) {
+            if (isset($content->data)) {
+                Assert::assertCount(
+                    $amount, 
+                    $content->data, 
+                    "The amount of hotels (" . count($content->data) 
+                    . ") you got isn't equal to the expected amount ($amount)"
+                );
+                
+                $id = 0;
+
+                foreach($content->data as $hotel) {
+                    Assert::assertEquals(++$id, $hotel->id, "The hotel ID's you got aren't the expected");
+                }
+            } else {
+                throw new \Exception("The property 'data' doesn't exists in response\n" . $content);     
+            }
+        } else {
+           throw new \Exception("Response was not JSON\n" . $page->getContent());
+        }
     }
 }
