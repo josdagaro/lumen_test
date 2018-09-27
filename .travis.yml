@@ -1,0 +1,27 @@
+sudo: required
+
+language: php
+
+services:
+  - docker
+
+env:
+  - DOCKER_COMPOSE_VERSION=1.8.0
+
+before_install:
+  - composer install
+
+install:
+  - docker-compose pull
+
+before_script:
+  - docker-compose up -d
+  - docker-compose ps
+
+script:
+  - docker exec api bin/behat
+
+after_success:
+  - "curl -o /tmp/travis-automerge https://raw.githubusercontent.com/cdown/travis-automerge/master/travis-automerge"
+  - "chmod a+x /tmp/travis-automerge"
+  - "BRANCHES_TO_MERGE_REGEX='^\\w*' BRANCH_TO_MERGE_INTO=master GITHUB_REPO=josdagaro/lumen_test /tmp/travis-automerge"
