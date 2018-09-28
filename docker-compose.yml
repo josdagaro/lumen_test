@@ -1,6 +1,7 @@
 version: "3.1"
 
 services:
+
   proxy:
     image: traefik:latest
     container_name: proxy
@@ -12,12 +13,14 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik.toml:/traefik.toml
     networks:
-      - default
+      - intranet
     labels:
       - "traefik.backend=proxy"
       - "traefik.frontend.rule=Host:proxy.local"
-      - "traefik.docker.network=default"
+      - "traefik.frontend.entryPoints=https"
+      - "traefik.docker.network=intranet"
       - "traefik.port=8080"
+
   api:
     build:
       context: .
@@ -28,28 +31,33 @@ services:
       - ./:/var/www/html/
       - ./docker/api/default.conf:/etc/apache2/sites-enabled/000-default.conf
     networks:
-      - default
+      - intranet
     labels:
       - "traefik.backend=api"
       - "traefik.frontend.rule=Host:api.local"
-      - "traefik.docker.network=default"
+      - "traefik.frontend.entryPoints=https"
+      - "traefik.docker.network=intranet"
       - "traefik.port=80"
+    depends_on:
+      - ${DB_HOST}
+
   database:
     image: postgres:10
-    container_name: database
+    container_name: ${DB_HOST}
     environment: 
-      POSTGRES_USER: web
-      POSTGRES_PASSWORD: secret
-      POSTGRES_DB: hotels
-    ports:
-      - 5432:5432
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    volumes:
+      - ./docker/api/waiter.sh:/scripts/waiter.sh
     networks:
-      - default
+      - intranet
     labels:
-      - "traefik.backend=database"
-      - "traefik.frontend.rule=Host:database.local"
-      - "traefik.docker.network=default"
-      - "traefik.port=5432"
+      - "traefik.enable=false"
+    env_file:
+      - .env
+
 networks:
-  default:
+
+  intranet:
     driver: bridge

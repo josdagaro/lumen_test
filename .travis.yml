@@ -2,6 +2,9 @@ sudo: required
 
 language: php
 
+php:
+  - "7.2"
+
 services:
   - docker
 
@@ -9,19 +12,47 @@ env:
   - DOCKER_COMPOSE_VERSION=1.8.0
 
 before_install:
-  - composer install
+  - export INI=~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+  - echo memory_limit = -1 >> $INI
+  - composer self-update
+  - touch .env
+  - echo APP_ENV=$APP_ENV >> .env
+  - echo APP_DEBUG=$APP_DEBUG >> .env
+  - echo APP_KEY=$APP_KEY >> .env
+  - echo APP_TIMEZONE=$APP_TIMEZONE >> .env
+  - echo LOG_CHANNEL=$LOG_CHANNEL >> .env
+  - echo LOG_SLACK_WEBHOOK_URL= >> .env
+  - echo DB_CONNECTION=$DB_CONNECTION >> .env
+  - echo DB_HOST=$DB_HOST >> .env
+  - echo DB_PORT=$DB_PORT >> .env
+  - echo DB_DATABASE=$DB_DATABASE >> .env
+  - echo DB_USERNAME=$DB_USERNAME >> .env
+  - echo DB_PASSWORD=$DB_PASSWORD >> .env
+  - echo CACHE_DRIVER=$CACHE_DRIVER >> .env
+  - echo QUEUE_DRIVER=$QUEUE_DRIVER >> .env
 
 install:
+  - flags="--no-interaction --optimize-autoloader"
+  - composer install $flags
+  - chmod +x artisan docker/api/waiter.sh
+  - chmod -R 777 storage vendor
   - docker-compose pull
+  - docker-compose build --no-cache
 
 before_script:
   - docker-compose up -d
   - docker-compose ps
 
 script:
-  - docker exec api bin/behat
+  - docker-compose exec $DB_HOST sh /scripts/waiter.sh $DB_HOST $DB_PORT
+  - docker-compose exec api ./artisan migrate:refresh --seed
+  - docker-compose exec api vendor/bin/behat
 
 after_success:
   - "curl -o /tmp/travis-automerge https://raw.githubusercontent.com/cdown/travis-automerge/master/travis-automerge"
   - "chmod a+x /tmp/travis-automerge"
-  - "BRANCHES_TO_MERGE_REGEX='^\\w*' BRANCH_TO_MERGE_INTO=master GITHUB_REPO=josdagaro/lumen_test /tmp/travis-automerge"
+  - "BRANCHES_TO_MERGE_REGEX='develop' BRANCH_TO_MERGE_INTO=master GITHUB_REPO=josdagaro/lumen_test /tmp/travis-automerge"
+
+branches:
+  only:
+    - develop
