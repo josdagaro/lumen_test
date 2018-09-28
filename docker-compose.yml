@@ -44,7 +44,7 @@ services:
   database:
     image: postgres:10
     container_name: ${DB_HOST}
-    environment: 
+    environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_DATABASE}
@@ -54,8 +54,6 @@ services:
       - intranet
     labels:
       - "traefik.enable=false"
-    env_file:
-      - .env
 
 networks:
 
