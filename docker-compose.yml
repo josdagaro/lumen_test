@@ -17,7 +17,7 @@ services:
     labels:
       - "traefik.backend=proxy"
       - "traefik.frontend.rule=Host:proxy.local"
-      - "traefik.frontend.entryPoints=https"
+      - "traefik.frontend.entryPoints=http"
       - "traefik.docker.network=intranet"
       - "traefik.port=8080"
 
@@ -35,7 +35,7 @@ services:
     labels:
       - "traefik.backend=api"
       - "traefik.frontend.rule=Host:api.local"
-      - "traefik.frontend.entryPoints=https"
+      - "traefik.frontend.entryPoints=http"
       - "traefik.docker.network=intranet"
       - "traefik.port=80"
     depends_on:
