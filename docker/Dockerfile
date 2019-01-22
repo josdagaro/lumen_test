@@ -6,10 +6,7 @@ RUN apt update -y \
     libmemcached-dev \
     zlib1g-dev \
     && docker-php-ext-install \
-    mbstring \
-    pdo_pgsql \
-    pdo \
-    pgsql
+    mbstring
 
 RUN curl -L -o /tmp/memcached.tar.gz "https://github.com/php-memcached-dev/php-memcached/archive/php7.tar.gz" \
     && mkdir -p /usr/src/php/ext/memcached \
@@ -19,3 +16,7 @@ RUN curl -L -o /tmp/memcached.tar.gz "https://github.com/php-memcached-dev/php-m
     && rm /tmp/memcached.tar.gz \
     && a2enmod rewrite \
     && a2enmod headers
+
+COPY docker/default.conf /etc/apache2/sites-enabled/000-default.conf
+
+COPY . /var/www/html/

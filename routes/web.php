@@ -11,6 +11,5 @@
 |
  */
 
-$router->get('hotels[/{id}]', 'HotelController@show');
-$router->post('hotels', 'HotelController@store');
-$router->delete('hotels/{id}', 'HotelController@destroy');
+$router->get('ask', 'SpikeController@ask');
+$router->get('answer', 'SpikeController@answer');

@@ -10,10 +10,3 @@
 | database. Just tell the factory how a default model should look.
 |
 */
-
-$factory->define(App\Hotel::class, function (Faker\Generator $faker) {
-    return [
-        'name' => $faker->name,
-        'location' => $faker->address,
-    ];
-});
